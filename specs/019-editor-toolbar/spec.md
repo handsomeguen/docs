@@ -27,6 +27,7 @@
 
 1. **Given** [🔗], **Then** 창 문구 `링크 주소 (비우면 링크 해제)`, 기본값 `https://`(이미 링크면 그 주소).
 2. **Given** 비우거나 `https://`만 남기고 확인, **Then** 링크가 생기지 않는다(링크 위였으면 그 링크 전체가 풀린다).
+3. **Given** `naver.com`처럼 scheme 없이 넣음, **Then** `https://naver.com` 링크. `tel:`·`ftp:`·`javascript:`처럼 저장하면 사라지는 주소는 `링크로 넣을 수 없는 주소예요. https://로 시작하는 주소를 넣어 주세요.`를 알리고 넣지 않는다.
 
 ### User Story 3 - 초점과 좁은 화면 (Priority: P2)
 
