@@ -30,7 +30,7 @@
 
 ### User Story 3 - 다른 사이트로 보내지 않는다 (Priority: P1)
 
-1. **Given** `next`가 `//evil.com`, `https://evil.com`, `/\evil.com`, 탭이 섞인 값, `javascript:` 등, **Then** 안내 문구·숨은 칸이 없고 로그인하면 내 블로그.
+1. **Given** `next`가 `//evil.com`, `https://evil.com`, `/\evil.com`, 탭이 섞인 값, `javascript:`, 점 경로를 풀면 `//`가 되는 `/..//evil.com`·`/.//evil.com` 등, **Then** 안내 문구·숨은 칸이 없고 로그인하면 내 블로그. 돌아갈 주소 안에 다시 넣은 `next`도 결국 걸러진다.
 2. **Given** 숨은 칸을 다른 사이트 주소로 바꿔 보냄, **Then** 내 블로그.
 3. **Given** 이미 로그인한 채 `/?next=…`, **Then** 첫 화면을 거치지 않고 그 주소로(다른 사이트 주소면 내 블로그로).
 
