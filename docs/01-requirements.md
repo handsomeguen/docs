@@ -4,7 +4,7 @@
 
 - 팀: 이진행(ehgo508), chang0580, jiwon934
 - 작성일: 2026-10-02
-- 버전: 1.38 (2026-10-12 새 코드 13단계 마을 검색 메모)
+- 버전: 1.39 (2026-10-12 새 코드 14단계 붙여 넣기 다시 올리기 메모)
 
 ### 변경 이력
 
@@ -57,6 +57,7 @@
 | 1.36 | 2026-10-11 | 새 코드 11단계(`specs/011-withdraw`): AUTH-06 회원 탈퇴 구현 메모 (코인·아이템·소셜 연결은 아직 없어 지울 것 없음, 블로그 관리에 [👤 내 정보] 링크) | chang0580 |
 | 1.37 | 2026-10-11 | 새 코드 12단계(`specs/012-admin`): AUTH-08 관리자 구현 메모 (출석이 없어 통계 카드 4개, 공지 블로그에 캐릭터 없음, 👑는 헤더에만) | chang0580 |
 | 1.38 | 2026-10-12 | 새 코드 13단계(`specs/013-town-search`): BLOG-07 마을 검색 구현 메모 (옆 칸 `🏘 마을 검색` 상자, 블로그 줄에 프로필 사진·캐릭터 얼굴 없음) | chang0580 |
+| 1.39 | 2026-10-12 | 새 코드 14단계(`specs/014-paste-reupload`): POST-07 흐름 7 내 다른 글 첨부 붙여 넣기 다시 올리기 구현 (프로필 사진은 아직 없어 빠짐) | chang0580 |
 
 ### 2026-10-07 설계 변경 (구현됨)
 
@@ -111,7 +112,7 @@
 | AUTH-03, AUTH-04, AUTH-07, AUTH-09 | 가입·로그인 뒤 마을(광장)이 아니라 **내 블로그**(`/@주소`)로 간다. 가입 폼에 **캐릭터 고르기 칸이 없다** |
 | BLOG-01, BLOG-02, BLOG-03, BLOG-05 | 블로그 위쪽 "우리 집"·미니룸·위젯 없이 글 목록과 카테고리만 |
 | POST-01, POST-02, POST-03, POST-05 | 첨부(POST-07·09)가 생기기 전까지 본문에 `<img>`를 허용하지 않는다 |
-| POST-07, POST-09 (2단계, `specs/002-attachments`) | **내 다른 글의 첨부를 붙여 넣으면 새로 다시 올리기**(POST-07 흐름 7)는 아직 없다: 이 글에 붙일 수 없는 첨부는 저장할 때 빠진다. 프로필 사진(`profiles.photo_key`)도 아직 없다. 마이그레이션은 `0002_attachments`·`0003_attachments_track_detached`, 테스트는 `tests/e2e/attachments.spec.ts`·`attachment-access.spec.ts` |
+| POST-07, POST-09 (2단계, `specs/002-attachments`) | **내 다른 글의 첨부를 붙여 넣으면 새로 다시 올리기**(POST-07 흐름 7)는 14단계(`specs/014-paste-reupload`, 2026-10-12)에 만들었다(프로필 사진이 없어 그 경우는 없음). 서버 확인은 Server Action `classifyPastedAttachments`·`reuploadPastedAttachment`(`src/app/write/actions.ts`), 테스트 `tests/e2e/paste-reupload.spec.ts`. 이 글에 붙일 수 없는 첨부는 여전히 저장할 때 빠진다. 프로필 사진(`profiles.photo_key`)도 아직 없다. 마이그레이션은 `0002_attachments`·`0003_attachments_track_detached`, 테스트는 `tests/e2e/attachments.spec.ts`·`attachment-access.spec.ts` |
 | POST-04 (3단계, `specs/003-tags`) | 마을 소식·이웃 새 글 화면이 아직 없어서 🏷 인기 태그 상자는 태그별 글(`/tags/[태그]`) 화면에만 있다. 태그별 글 카드에 블로그 이름을 함께 보여 준다 |
 | SOC-01, SOC-02 (4단계, `specs/004-comments`) | 게임·알림이 아직 없어서 **댓글 보상(GAME-05)과 알림(GAME-08)이 없다**. 작성자 옆 캐릭터 그림 대신 닉네임만 보인다. 탈퇴(AUTH-06)가 없어서 탈퇴 정리도 없다(작성자가 사라지면 댓글은 "알 수 없음"으로 남고 답글은 함께 지워진다). 댓글 수정은 명세대로 없다. 마이그레이션 `0005_comments`, 테스트 `tests/e2e/comments.spec.ts` |
 | POST-06, BLOG-06, BLOG-09 (5단계, `specs/005-blog-sidebar`) | 블로그 홈 위쪽 프로필 카드가 없어서 방문자 수는 옆 칸 `👣 방문자`에만 보인다. 마을이 없어 `🏘 마을 검색`, 블로그 관리의 최근 7일 방문 그래프, 주인 도구 막대·글 관리(BLOG-08)는 6단계에서 만들었다. 글 상세의 조회 기록이 그 블로그 방문 기록도 함께 남긴다(요청 1개). 마이그레이션 `0006_views_visits`, 테스트 `tests/e2e/sidebar.spec.ts` |
