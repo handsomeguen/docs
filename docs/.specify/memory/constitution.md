@@ -3,7 +3,7 @@ Sync Impact Report
 - Version: (none) → 1.0.0 (최초 작성)
 - 근거 문서: docs/01-requirements.md (Blogville 요구사항 명세서 v1.26) 1장·5장(비기능)
 - Added principles: I~VI 전부 새로 작성
-- Templates: plan-template.md의 Constitution Check는 아래 6개 원칙을 게이트로 쓴다 (✅ specs/001-blog-core/plan.md 반영)
+- Templates: plan-template.md의 Constitution Check는 아래 6개 원칙을 게이트로 쓴다 (✅ docs/specs/001-blog-core/plan.md 반영)
 - Follow-up TODO: 없음
 -->
 
@@ -23,7 +23,7 @@ Sync Impact Report
 
 - 모든 Server Action과 회원 전용 화면은 맨 앞에서 `requireMember()` / `requireAdmin()`으로 권한을 확인한다 (NF-02). 화면이 버튼을 숨기는 것만 믿지 않는다.
 - 요청에 섞여 온 `ownerId`·`blogId`·`role` 같은 값은 읽지 않는다. 주인은 언제나 세션에서 정한다.
-- 입력 규칙과 오류 문구는 `src/lib/*-rules.ts` 한 곳에 두고 브라우저와 서버가 같이 쓴다.
+- 입력 규칙과 오류 문구는 `app/src/lib/*-rules.ts` 한 곳에 두고 브라우저와 서버가 같이 쓴다.
 - 번호(ID)는 숫자만 적힌 1~2147483647 정수만 받는다 (`parseId`). 그 밖의 값은 404 또는 `잘못된 요청이에요`.
 
 ### III. 무결성은 DB로도 지킨다
@@ -71,7 +71,7 @@ Sync Impact Report
 ## 개발 흐름
 
 1. 기능마다 Spec Kit 순서를 따른다: `/speckit.specify` → `/speckit.clarify`(필요하면) → `/speckit.plan` → `/speckit.tasks` → `/speckit.implement`.
-2. 브랜치 이름은 spec 폴더와 같다 (`001-blog-core`).
+2. 브랜치 이름은 spec 폴더와 같다 (`001-blog-core`). spec 폴더는 `docs/specs/`, 소스 코드는 `app/`에 둔다.
 3. PR은 다른 팀원 1명 이상이 승인하면 merge한다. PR 설명에 다룬 요구사항 ID를 적는다.
 4. 명세(`docs/01-requirements.md`)와 코드가 달라지면 같은 PR에서 명세의 해당 줄과 변경 이력을 고친다.
 
