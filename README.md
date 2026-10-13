@@ -57,6 +57,7 @@
 | `docs/specs/050-town-npc/` | 걸어 다니는 이웃의 spec·plan·tasks |
 | `docs/specs/051-clothes-shop/` | 옷가게의 spec·plan·tasks |
 | `docs/specs/052-salon/` | 미용실의 spec·plan·tasks |
+| `docs/specs/053-garden/` | 내 정원(광장 옷가게·미용실 건물 포함)의 spec·plan·tasks |
 
 ## 실행·테스트
 
