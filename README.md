@@ -4,6 +4,7 @@
 
 | 경로 | 내용 |
 |---|---|
+| `docs/02-operations.md` | **운영 안내**: 배포·되돌리기·백업·감시·시크릿, 일이 생겼을 때 |
 | `docs/01-requirements.md` | 요구사항 명세서 (v1.44) |
 | `docs/.specify/memory/constitution.md` | 프로젝트 원칙 |
 | `docs/specs/001-blog-core/` | 첫 기능(가입·블로그·글·카테고리)의 spec·plan·tasks |
