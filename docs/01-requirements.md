@@ -4,7 +4,7 @@
 
 - 팀: 이진행(ehgo508), chang0580, jiwon934
 - 작성일: 2026-10-02
-- 버전: 1.81 (2026-10-13 새 코드 56단계 방명록, BLOG-10)
+- 버전: 1.82 (2026-10-13 새 코드 57단계 버그·문의, SUP-01~04)
 
 ### 변경 이력
 
@@ -100,6 +100,7 @@
 | 1.79 | 2026-10-13 | 새 코드 54단계(`specs/054-rss-share`, 코드 저장소 handsomeguen/blogville `054-rss-share`): 명세에 없던 블로그 기본 기능. 블로그마다 RSS 구독 `/@주소/rss`(최신 공개 글 20개, 본문 전체, 옆 칸 `📡 RSS로 구독하기`), 글 공유 미리보기(Open Graph 제목·요약·첫 사진, 비공개 글은 미리보기 없이 noindex), `/sitemap.xml`·`/robots.txt`, canonical 주소. 사이트 주소는 `BETTER_AUTH_URL`(배포 `APP_URL`) | Claude |
 | 1.80 | 2026-10-13 | 새 코드 55단계(`specs/055-comment-edit-secret`, 코드 저장소 handsomeguen/blogville `055-comment-edit-secret`): SOC-01 열린 질문 "댓글 수정"에 답함. **작성자 본인**만 지우지 않은 댓글·답글을 [수정](채워진 입력칸, [취소]·Esc, [저장])하고 시각 옆에 `(수정됨)`(내용이 바뀔 때만). 블로그 주인·관리자는 남의 댓글을 지우기만 한다. 명세에 없던 **비밀 댓글**: 댓글·답글 입력칸의 `🔒 비밀 댓글`, 내용은 작성자·블로그 주인·관리자(답글은 원댓글 작성자도)만 보고 나머지에게는 `🔒 비밀 댓글이에요`(서버가 내용을 비워 보냄, 옆 칸 최근 댓글도 같음, `💬 N`은 그대로 셈). 마이그레이션 `0026_comment_edit_secret`(`is_secret`·`edited_at`) | Claude |
 | 1.81 | 2026-10-13 | 새 코드 56단계(`specs/056-guestbook`, 코드 저장소 handsomeguen/blogville `056-guestbook`): 새 요구사항 **BLOG-10 방명록**(티스토리처럼). 블로그마다 `/@주소/guestbook`(옆 칸 맨 위·주인 도구 막대 `📖 방명록 N`), 회원은 1~1000자 글(댓글과 같은 규칙)과 `🔒 비밀글`(작성자·주인·관리자만, 나머지는 `🔒 비밀 방명록이에요`, 서버가 내용을 비워 보냄), 작성자만 수정 `(수정됨)`, 작성자·주인·관리자 삭제, 주인만 글마다 답글 1개(비밀글의 답글도 가림). 최신순 10개씩. 알림 `guestbook`(주인에게)·`guestbook_reply`(작성자에게, GAME-08). 탈퇴한 회원의 방명록 글은 지워진다. 마이그레이션 `0027_guestbook` | Claude |
+| 1.82 | 2026-10-13 | 새 코드 57단계(`specs/057-support`, 코드 저장소 handsomeguen/blogville `feature/support`): 새 영역 **4.8 버그·문의(SUP)**. SUP-01 아래 막대 [🆕 업데이트 소식](최신 릴리스 3일 안이면 `NEW`)·[🐞 버그·문의하기](보던 주소 `?from=`), PC 마을은 ☰ 메뉴. SUP-02 `/support`에서 회원이 🐞 버그·💬 문의(제목 1~100자, 내용 1~2000자, 한 시간 5번)를 보내고 `내 문의`에서 상태(접수·확인 중·답변 완료·고침)와 답변을 봄. SUP-03 `/admin/feedback`(상태 거르기, 답변·상태 저장, `/admin`에 새 문의 수). SUP-04 자동 처리 API `GET /api/feedback`·`POST /api/feedback/:id`(`FEEDBACK_BOT_TOKEN` Bearer 열쇠만, 없으면 404). 알림 `feedback_reply`(GAME-08). 마이그레이션 `0028_support` | Claude |
 
 ### 2026-10-07 설계 변경 (구현됨)
 
@@ -3345,6 +3346,7 @@ Blogville은 **블로그 활동을 게임 보상과 연결**해서, 글을 쓸�
 | `like` | ❤️ {닉네임}님이 「{글 제목}」에 공감했어요 | 그 글 `/@주소/글ID` | ❌ | `toggleLike` (SOC-03) |
 | `comment` | 💬 {닉네임}님이 「{글 제목}」에 댓글을 달았어요 | 그 글의 댓글 `/@주소/글ID#comments` | ❌ | `addComment` (SOC-01) |
 | `reply` | 💬 {닉네임}님이 내 댓글에 답글을 달았어요 | 그 글의 댓글 `/@주소/글ID#comments` | ❌ | `addReply` (SOC-02) |
+| `feedback_reply` | 🐞 문의에 답변이 달렸어요: {제목} | `/support` | ❌ | `updateFeedback` (SUP-03·04) |
 
 - 공감·댓글은 자주 오기 때문에 팝업 없이 🔔 숫자로만 알린다.
 - 받는 사람: 공감·댓글은 글 주인, 답글은 원댓글 작성자 (글 주인에게는 답글 알림이 없다).
@@ -4837,6 +4839,88 @@ Blogville은 **블로그 활동을 게임 보상과 연결**해서, 글을 쓸�
 - 이웃 집(1~10번)은 정원에서 200px 넘게 떨어진 언덕 마을·들판 마을에 있다 (TOWN-04). 친구 마을(TOWN-15)에서는 그 주인의 집과 농장이 정원에 선다.
 - 시험: `npm run test:game`이 내 집·농장이 정원 안인지, 정원 안 건물이 내 집·농장·우체통·아치·울타리뿐인지, 이웃 집 자리가 멀리 있는지, 이웃이 걷는 길 마디가 정원(둘레 60px 포함)에 없는지 본다. E2E `town`은 내 집 텔레포트가 정원 안인지 본다.
 
+### 4.8 버그·문의 (SUP)
+
+| ID | 요구사항 | 우선 | 상태 | 담당 |
+|---|---|---|---|---|
+| SUP-01 | 모든 화면 아래 막대에 [🆕 업데이트 소식](최신 릴리스가 3일 안이면 `NEW`)과 [🐞 버그·문의하기](보던 주소를 넘김) 버튼이 있다 (PC 마을에서는 ☰ 메뉴에) | S | ✅ | Claude |
+| SUP-02 | 회원은 `/support`에서 버그·문의를 보내고(한 시간 5번), 아래 `내 문의`에서 처리 상태와 답변을 본다 | S | ✅ | Claude |
+| SUP-03 | 관리자는 `/admin/feedback`에서 문의를 상태로 걸러 보고 답변·상태를 바꾼다. 답변이 달리면 쓴 사람에게 알림 | S | ✅ | Claude |
+| SUP-04 | 정해진 열쇠(`FEEDBACK_BOT_TOKEN`)를 가진 자동 처리 프로그램이 API로 문의를 받아 보고 답한다 | C | ✅ | Claude |
+
+#### 상세 명세
+
+##### SUP-01 아래 막대 버튼
+
+| 항목 | 내용 |
+|---|---|
+| 우선 / 상태 / 담당 | S / ✅ / Claude |
+| 사용자 | 모두 |
+| 관련 | `src/app/layout.tsx`, `src/components/layout/SupportLink.tsx`·`UpdatesNewBadge.tsx`, `src/server/releases.ts`(`listReleases`, 10분 캐시), `specs/057-support` |
+
+- 모든 화면 맨 아래 막대(`footer.site-footer`)에 [🆕 업데이트 소식](`/updates`)과 [🐞 버그·문의하기](`/support?from=<보던 주소>`). 휴대폰에서는 두 버튼이 반씩 나눠 한 줄, 높이 44px, 가로 스크롤 없음, 회원의 아래 탭에 가리지 않는다.
+- 최신 GitHub 릴리스가 나온 지 3일 안이면 [업데이트 소식] 옆에 빨간 `NEW` (`hasNewRelease`). GitHub이 늦거나 막혀도 화면은 먼저 열린다 (Suspense).
+- PC 마을(`/town`)에는 막대가 없다(기존 규칙). 대신 ☰ 메뉴 아래쪽에 `🐞 버그·문의`.
+
+##### SUP-02 문의 쓰기·내 문의
+
+| 항목 | 내용 |
+|---|---|
+| 우선 / 상태 / 담당 | S / ✅ / Claude |
+| 사용자 | 보기: 모두 · 쓰기: 회원 |
+| 관련 | `/support`, `src/app/support/page.tsx`·`actions.ts`, `src/components/support/SupportForm.tsx`, `src/lib/support-rules.ts`, `src/server/feedback.ts`, 표 `feedback` |
+
+**기본 흐름**
+1. 종류(`🐞 버그` / `💬 문의`), 제목(1~100자), 내용(1~2000자)을 적고 [보내기].
+2. `접수했어요. 답변이 달리면 알림으로 알려 드릴게요`가 보이고 칸이 빈다. 아래 `내 문의 N`에 맨 위로 나온다.
+3. `내 문의`는 최신순 10개씩(`?page=N`), 상태 표시 `접수` / `확인 중` / `답변 완료` / `고침`과 답변(`💌 답변`, 답한 시각).
+
+**예외 흐름**
+- 방문자 → 칸 대신 `로그인하면 버그·문의를 보낼 수 있어요`. [로그인]은 이 화면(보던 주소 포함)으로 돌아온다 (`loginHref`).
+- 지난 한 시간에 5번 보냈으면 → `문의는 한 시간에 5번까지 보낼 수 있어요. 잠시 뒤 다시 보내 주세요` (쓴 내용은 남음). 서버가 회원 행을 잠그고 센다.
+- 빈 제목·내용, 너무 긴 값, 모르는 종류 → 안내 문구, 쓴 내용은 남음.
+
+**저장하는 것**
+- 보던 주소(`?from=`): `safeNext`를 통과한 이 사이트 안의 `/…` 주소만, `/support` 자신은 남기지 않는다. 아니면 비운다.
+- 브라우저 정보: 폼이 아니라 서버가 요청 헤더 `User-Agent`에서 받아 제어 문자를 빼고 300자까지.
+
+##### SUP-03 관리자 처리
+
+| 항목 | 내용 |
+|---|---|
+| 우선 / 상태 / 담당 | S / ✅ / Claude |
+| 사용자 | 관리자 (아니면 404, AUTH-08) |
+| 관련 | `/admin`(새 문의 수), `/admin/feedback`, `src/app/admin/actions.ts`(`adminUpdateFeedback`), `src/components/admin/FeedbackAdminForm.tsx`, 알림 `feedback_reply`(GAME-08) |
+
+- `/admin`에 `🐞 버그·문의 새 문의 N건`과 [문의 보기]. `/admin/feedback`은 `전체`·`접수`·`확인 중`·`답변 완료`·`고침`으로 거르고 최신순 20개씩.
+- 문의마다 쓴 사람(아이디·닉네임)·종류·제목·내용·보던 화면·브라우저·보낸 때·답한 때(관리자/자동 처리). 상태를 고르고 답변을 적어 [저장]. 답변을 비우고 저장하면 답변을 지운다.
+- 상태를 그대로 두고 새 답변만 달면 `접수`·`확인 중`은 `답변 완료`가 된다.
+- **알림**: 새 답변이 달리거나 답변이 바뀌거나, 상태가 `답변 완료`·`고침`으로 바뀌면 쓴 사람에게 `🐞 문의에 답변이 달렸어요: {제목}` (누르면 `/support`). 한 번 저장에 알림 하나. `확인 중`으로만 바꾸거나 같은 답변을 다시 저장하면 없다.
+- 일반 회원이 관리자 요청을 조작해 보내도 404로 끝나고 바뀌지 않는다.
+
+##### SUP-04 자동 처리 API
+
+| 항목 | 내용 |
+|---|---|
+| 우선 / 상태 / 담당 | C / ✅ / Claude |
+| 사용자 | 열쇠를 가진 자동 처리 프로그램 (정해진 시간마다 도는 에이전트) |
+| 관련 | `src/app/api/feedback/route.ts`, `src/app/api/feedback/[id]/route.ts`, `src/server/feedback-bot.ts`(`checkBotToken`), 환경 변수 `FEEDBACK_BOT_TOKEN`(배포 시크릿) |
+
+- 인증은 `Authorization: Bearer <FEEDBACK_BOT_TOKEN>` 하나뿐 (쿠키·세션으로는 못 들어온다). 길이를 맞춘 해시를 `crypto.timingSafeEqual`로 비교한다.
+- 환경 변수가 없거나 32자보다 짧으면 API가 꺼져 모든 요청이 `404`. 켜져 있으면 열쇠가 없거나 틀릴 때 `401`.
+- `GET /api/feedback?status=new,in_progress&limit=50` → `200 { items: [{ id, kind, title, content, pagePath, userAgent, status, reply, createdAt, author: { username } }] }` (오래된 것부터, `limit` 1~100 기본 50, `status` 없으면 전체, 모르는 값은 `400`).
+- `POST /api/feedback/:id` 본문 `{ status?, reply? }`(둘 중 하나 이상, 다른 칸 없음, reply 1~2000자) → `200 { item: { id, status, reply, repliedAt, repliedBy, notified } }`. 답변은 `replied_by = 'bot'`과 답한 시각을 남기고 SUP-03과 같은 규칙으로 상태를 올리고 알린다. 잘못된 본문 `400`, 없는 문의 `404`, 16KB 넘는 본문 `413`.
+
+**수용 기준**
+- [x] 아래 막대 두 버튼(44px, 375px 가로 스크롤 없음, 아래 탭에 안 가림), PC 마을에서 숨김, `?from=` 전달. (`tests/e2e/support.spec.ts`)
+- [x] 방문자 로그인 링크와 돌아오기, 버그·문의 보내기와 내 문의, 다른 사이트 주소 안 남김, 6번째 막힘, 쪽 나눔. (`tests/e2e/support.spec.ts`)
+- [x] 관리자 답변 → 알림·상태·답변, 고침 → 알림 한 번 더, 상태 거르기, 일반 회원 404·조작 거절. (`tests/e2e/support.spec.ts`)
+- [x] API: 열쇠 없음·틀림 401, 맞는 열쇠로 목록·답변·알림, 잘못된 값 400·404. 꺼짐(404)·열쇠 비교는 단위 시험. (`tests/e2e/support.spec.ts`, `tests/unit/support-rules.test.ts`)
+
+**열린 질문**
+- 문의에 사진을 붙일 수 있게 할까? 지금은 글자만.
+- 자동 처리 프로그램이 쓴 답변을 관리자가 확인한 뒤에만 보이게 할까? 지금은 바로 보인다.
+
 
 
 > 담당 **ehgo508**
@@ -5024,6 +5108,8 @@ Blogville은 **블로그 활동을 게임 보상과 연결**해서, 글을 쓸�
 | 동물 농장 (알·부화·돌보기, 성장 아이템) | `/farm` | 회원 |
 | 연못 낚시터 | `/fishing` | 회원, TOWN-14 |
 | 알림함 | `/notifications` (헤더 🔔, 휴대폰 아래 탭) | 회원 |
+| 버그·문의 (쓰기·내 문의) | `/support?from=<보던 주소>` (아래 막대 🐞 버그·문의하기, 마을 ☰ 메뉴) | 모두 (쓰기는 회원), SUP-02 |
+| 관리자 버그·문의 | `/admin/feedback?status=` | 관리자 (아니면 404), SUP-03 |
 | 태그별 글 | `/tags/[name]` | 모두 |
 | 첨부 사진 보기·파일 내려받기 | `/files/[키]` (화면이 아니라 파일 주소, 올리기는 `POST /api/uploads`) | 공개 글의 첨부·프로필 사진은 모두, 비공개 글의 첨부는 글 주인만, 어느 글에도 붙지 않은 첨부는 올린 사람만 (POST-07, ERD 3.9) |
 | 없는 주소 (`길을 잃었어요`) | 404 | 모두 |
