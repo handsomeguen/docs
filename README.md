@@ -58,6 +58,7 @@
 | `docs/specs/051-clothes-shop/` | 옷가게의 spec·plan·tasks |
 | `docs/specs/052-salon/` | 미용실의 spec·plan·tasks |
 | `docs/specs/053-garden/` | 내 정원(광장 옷가게·미용실 건물 포함)의 spec·plan·tasks |
+| `docs/specs/054-rss-share/` | 구독·공유·검색 노출(RSS, 공유 미리보기, sitemap·robots)의 spec·plan·tasks |
 
 ## 실행·테스트
 
