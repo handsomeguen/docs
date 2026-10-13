@@ -61,6 +61,7 @@
 | `docs/specs/054-rss-share/` | 구독·공유·검색 노출(RSS, 공유 미리보기, sitemap·robots)의 spec·plan·tasks |
 | `docs/specs/055-comment-edit-secret/` | 댓글 수정·비밀 댓글의 spec·plan·tasks |
 | `docs/specs/056-guestbook/` | 방명록(🔒 비밀글·주인 답글·방명록 알림)의 spec·plan·tasks |
+| `docs/specs/057-support/` | 버그·문의(아래 막대 버튼, 문의 쓰기·내 문의, 관리자 처리, 자동 처리 API)의 spec·plan·tasks |
 
 ## 실행·테스트
 
