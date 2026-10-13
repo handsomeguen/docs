@@ -64,6 +64,11 @@
 | `docs/specs/056-guestbook/` | 방명록(🔒 비밀글·주인 답글·방명록 알림)의 spec·plan·tasks |
 | `docs/specs/057-support/` | 버그·문의(아래 막대 버튼, 문의 쓰기·내 문의, 관리자 처리, 자동 처리 API)의 spec·plan·tasks |
 | `docs/specs/058-admin-tools/` | 관리자 기능 보강(회원 정지·권한·강제 탈퇴, 콘텐츠 선택 삭제·블라인드, 통계, 사이트 공지 띠, 금지어, 관리 기록)의 spec·plan·tasks |
+| `docs/specs/059-report-bookmarks/` | 신고하기·스크랩의 spec·plan·tasks |
+| `docs/specs/060-reader-ux/` | 글 읽기 편의의 spec·plan·tasks |
+| `docs/specs/061-export/` | 내 블로그 내보내기의 spec·plan·tasks |
+| `docs/specs/062-error-log/` | 서버 오류 기록의 spec·plan·tasks |
+| `docs/specs/063-notify-settings/` | 이웃 새 글 알림·알림 설정의 spec·plan·tasks |
 
 ## 실행·테스트
 
