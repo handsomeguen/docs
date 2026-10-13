@@ -55,6 +55,7 @@
 | `docs/specs/048-walk/` | 걷는 방향 그림의 spec·plan·tasks |
 | `docs/specs/049-town-lots/` | 이웃 집 자리 고르기의 spec·plan·tasks |
 | `docs/specs/050-town-npc/` | 걸어 다니는 이웃의 spec·plan·tasks |
+| `docs/specs/051-clothes-shop/` | 옷가게의 spec·plan·tasks |
 
 ## 실행·테스트
 
