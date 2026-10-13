@@ -1,0 +1,16 @@
+# Implementation Plan: 관리자 기능 보강
+
+**Branch**: `feature/admin-tools` | **Spec**: [spec.md](spec.md)
+
+- DB (마이그레이션 `0029_admin_tools`, 표·열·인덱스·외래 키·CHECK만, `CREATE SCHEMA` 없음):
+  - `users.suspended_until`(timestamptz, null = 정지 아님, 영구는 `9999-12-31`)·`suspend_reason`(1~200자 CHECK).
+  - `posts.blinded_at`·`blind_reason`(1~200자 CHECK), CHECK `posts_blinded_private`(가린 글은 공개일 수 없음).
+  - 새 표 `admin_audit`(`admin_id` → users ON DELETE SET NULL, `action` 1~40자, `target_type` CHECK `member`·`post`·`comment`·`reply`·`guestbook`·`feedback`·`site`, `target_id` 64자까지, `target_label` 1~200자, `detail` 1000자까지, `created_at`; 인덱스 `(created_at desc, id desc)`·`(action, created_at desc)`).
+  - 새 표 `site_settings`(`key` 기본 키, `value` 10000자까지, `updated_at`): `notice`(JSON `{text, link, enabled}`), `banned_words`(한 줄에 하나).
+- 순수 함수 `src/lib/admin-rules.ts`: 정지 기간·끝 시각·사유·문구(`parseSuspendDays`, `suspendUntil`, `parseReason`, `isSuspended`, `suspendedMessage`), 막기(`roleChangeError`, `memberActionError`), 콘텐츠(`parseContentTab`, `parseContentRefs` 50개까지, `snippet`), 공지(`parseNotice`(`safeNext`), `decodeNotice`(zod), `noticeDismissKey`), 금지어(`parseBannedWords`, `findBannedWord`, `bannedWordError`), 통계(`parseStatRange`, `lastDaysKST`), 기록 종류(`AUDIT_ACTIONS`, `parseAuditAction`).
+- 서버 `src/server/admin-tools.ts`: `writeAudit`·`listAudit`, `getDailyStats`(한국 날짜로 묶은 4가지 수)·`getTopBlogs`·`getModerationCounts`, `listMembers`·`suspendMember`(회원 행 `FOR UPDATE` → 정지 → 세션 삭제 → 기록)·`unsuspendMember`·`setMemberRole`(관리자 행을 모두 잠그고 센다)·`forceDeleteMember`(`deleteMember` 재사용), `listPostsForAdmin`·`listCommentsForAdmin`·`listGuestbookForAdmin`·`adminRemovePost`·`deleteContent`(기존 `removeComment`·`removeReply`·`removeEntry` 재사용), `blindPost`·`unblindPost`, `getNoticeSetting`·`getActiveNotice`(React `cache`, 실패해도 null)·`setNotice`·`saveBannedWords`, `auditFeedback`. `src/server/banned-words.ts`: `readBannedWords`, `getBannedWords`(30초 기억, `globalThis`), `clearBannedWordsCache`, `checkBannedWords`.
+- 로그인·세션: `src/lib/auth.ts` `databaseHooks.session.create.before`에서 정지 중이면 `APIError(FORBIDDEN, code ACCOUNT_SUSPENDED)`. `signIn`이 그 코드를 받아 정지 문구를 돌려준다. `src/server/dal.ts` `getSession`이 세션 행과 회원의 정지 여부를 함께 읽어 정지 중이면 세션을 지우고 null.
+- 금지어 검사 위치: `savePost`(트랜잭션 안, 정리한 본문 글자로, `PostSaveError`), 댓글·답글 쓰기·고치기(`src/app/blog/actions.ts`), 방명록 쓰기·고치기·답글(`guestbook-actions.ts`), 문의 보내기(`support/actions.ts`). 모두 글자 검사(`checkComment`·`checkFeedback`) 다음.
+- 글 블라인드: `savePost`가 가린 글이면 `isPublic=false`로, `setPostVisibility`는 가린 글을 공개로 못 바꾼다. 작성자 화면 `BlindNotice`.
+- Action `src/app/admin/tools-actions.ts`(모두 `requireAdmin` 먼저, zod·`parseId`·규칙 함수): `adminSuspend`, `adminUnsuspend`, `adminSetRole`, `adminForceDelete`, `adminBlindPost`, `adminUnblindPost`, `adminDeleteContent`, `adminSaveNotice`, `adminSaveBannedWords`. 기존 `actions.ts`의 글 삭제·비밀번호 초기화·문의 처리에 기록을 더했다.
+- 화면: `src/app/admin/layout.tsx`(`requireAdmin` + `AdminTabs`), `/admin`(활동 막대 `DailyBarChart`, 방문 많은 블로그), `/admin/members`, `/admin/content`(`BulkDeleteForm`: 선택 상자는 `form` 속성으로 폼 밖 목록에 두어 줄마다 블라인드 폼을 둘 수 있게), `/admin/settings`(`NoticeForm`·`BannedWordsForm`, 칸은 상태로 쥐어 실패 때 남김), `/admin/audit`. 공지 띠 `src/components/layout/SiteNoticeBar.tsx`(클라이언트, `localStorage`), `src/app/layout.tsx`에서 헤더 위에, `globals.css` PC 마을에서 숨김. 관리자 작업 폼은 `AdminActionForm`(확인 창은 폼 액션 안에서).
