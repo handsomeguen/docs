@@ -63,6 +63,7 @@
 | `docs/specs/055-comment-edit-secret/` | 댓글 수정·비밀 댓글의 spec·plan·tasks |
 | `docs/specs/056-guestbook/` | 방명록(🔒 비밀글·주인 답글·방명록 알림)의 spec·plan·tasks |
 | `docs/specs/057-support/` | 버그·문의(아래 막대 버튼, 문의 쓰기·내 문의, 관리자 처리, 자동 처리 API)의 spec·plan·tasks |
+| `docs/specs/058-admin-tools/` | 관리자 기능 보강(회원 정지·권한·강제 탈퇴, 콘텐츠 선택 삭제·블라인드, 통계, 사이트 공지 띠, 금지어, 관리 기록)의 spec·plan·tasks |
 
 ## 실행·테스트
 
